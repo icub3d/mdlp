@@ -25,8 +25,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GOOS: ${{ matrix.os }}
         run: |
-          cat "$GITHUB_EVENT_PATH" | jq -r .
-          UPLOAD_URL=$(cat "$GITHUB_EVENT_PATH" | jq -r .release.upload_url | sed -e 's/{.*//g')
+          UPLOAD_URL=$(cat "$GITHUB_EVENT_PATH" | jq -r .release.upload_url)
+          UPLOAD_URL=${UPLOAD_URL/\{?name,label\}/}
           RELEASE=$(cat "$GITHUB_EVENT_PATH" | jq -r .release.tag_name)
 
           make fetch-styles build publish-release
