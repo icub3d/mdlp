@@ -22,7 +22,7 @@ fi
 shasum -a 256 $FILE > $FILE.sha256
 
 # The actual file.
-echo curl \
+curl \
     --fail-with-body -sS \
     -X POST \
     --data-binary @"${FILE}" \
@@ -31,7 +31,7 @@ echo curl \
     "${UPLOAD_URL}?name=${FILE}"
 
 # The checksum
-echo curl \
+curl \
     --fail-with-body -sS \
     -X POST \
     --data-binary @"${FILE}.sha256" \
