@@ -1,0 +1,32 @@
+name: release
+run-name: release ${{ github.ref }}
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  release:
+    name: release ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["linux", "windows", "macos"]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: ">=1.21.0"
+      - name: compile and release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARCHIVE_TYPE: ${{ matrix.archive }}
+          GOOS: ${{ matrix.os }}
+        run: |
+          make fetch-styles build
+          UPLOAD_URL=$(cat "$GITHUB_EVENT_PATH" | jq -r .release.upload_url | sed -e 's/{.*//g')
+          RELEASE=$(cat "$GITHUB_EVENT_PATH" | jq -r .release.tag_name)
+          make publish-release

@@ -1,2 +1,8 @@
 fetch-styles:
-	./fetch-styles.fish
+	./fetch-styles.sh
+
+build: 
+	go build
+
+publish-release:
+	./publish-release.sh
