@@ -28,5 +28,4 @@ jobs:
           UPLOAD_URL=$(cat "$GITHUB_EVENT_PATH" | jq -r .release.upload_url)
           export UPLOAD_URL=${UPLOAD_URL/\{?name,label\}/}
           export RELEASE=$(cat "$GITHUB_EVENT_PATH" | jq -r .release.tag_name)
-
-          make fetch-styles build publish-release
+          make build publish-release
