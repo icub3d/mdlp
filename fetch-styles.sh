@@ -6,10 +6,9 @@ if [ ! -d styles ]; then
 	pushd styles
 
 	curl -s https://github.com/icub3d/mdlp | \
-		rg '<link' | rg 'rel="stylesheet"' | \
-		rg -o 'href="[^"]*"' | \
+		grep '<link' | grep 'rel="stylesheet"' | \
+		grep -o 'href="[^"]*"' | \
 		sed -e 's/"//g' -e 's/href=//g' | \
 		xargs -n1 wget
-	
 	popd
 fi
