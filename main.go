@@ -66,9 +66,6 @@ func main() {
 	defer watcher.Close()
 	fileChanged := watcher.Watch()
 
-	// Setup our websocket handler.
-	http.Handle("/ws", WebSocketHandler(fileChanged))
-
 	// Setup our renderer.
 	var r Renderer
 	switch renderer {
@@ -93,6 +90,9 @@ func main() {
 		defer mermaid.Close()
 		r = mermaid
 	}
+
+	// Setup our websocket handler.
+	http.Handle("/ws", WebSocketHandler(file, r, fileChanged))
 
 	// Setup styles and octicons server.
 	http.Handle("/styles/", StylesHandler())

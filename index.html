@@ -29,13 +29,13 @@
 									<div
 										class="Box-header d-flex border-bottom-0 flex-items-center flex-justify-between color-bg-default rounded-top-2">
 										<div class="d-flex flex-items-center">
-											<h2 class="Box-title">
+											<h2 id="filename" class="Box-title">
 												{{.FileName}}
 											</h2>
 										</div>
 									</div>
 									<div class="Box-body px-5 pb-5">
-										<article id="grip-content" class="markdown-body entry-content container-lg">
+										<article id="mdlp-content" class="markdown-body entry-content container-lg">
 											{{.Content}}
 										</article>
 									</div>
@@ -49,7 +49,7 @@
 	<script>
 		var ws = new WebSocket("ws://{{.Addr}}/ws");
 		ws.onmessage = function (evt) {
-			location.reload();
+			document.getElementById("mdlp-content").innerHTML = evt.data;
 		};
 		ws.onclose = function () {
 			console.log("Connection is closed...");
@@ -66,7 +66,6 @@
 				}
 			}
 		}
-
 	</script>
 </body>
 

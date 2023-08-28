@@ -3,14 +3,15 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
-func WebSocketHandler(ch <-chan struct{}) http.Handler {
+func WebSocketHandler(file string, renderer Renderer, ch <-chan struct{}) http.Handler {
 	return http.HandlerFunc(func(wr http.ResponseWriter, r *http.Request) {
-		ws, err := NewWebSocket(wr, r)
+		ws, err := NewWebSocket(file, renderer, wr, r)
 		if err != nil {
 			log.Println(err)
 			return
@@ -21,11 +22,13 @@ func WebSocketHandler(ch <-chan struct{}) http.Handler {
 }
 
 type WebSocket struct {
-	ws     *websocket.Conn
-	closed chan struct{}
+	file     string
+	renderer Renderer
+	ws       *websocket.Conn
+	closed   chan struct{}
 }
 
-func NewWebSocket(w http.ResponseWriter, r *http.Request) (*WebSocket, error) {
+func NewWebSocket(file string, renderer Renderer, w http.ResponseWriter, r *http.Request) (*WebSocket, error) {
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
@@ -38,7 +41,7 @@ func NewWebSocket(w http.ResponseWriter, r *http.Request) (*WebSocket, error) {
 		return nil, err
 	}
 
-	return &WebSocket{conn, make(chan struct{})}, nil
+	return &WebSocket{file, renderer, conn, make(chan struct{})}, nil
 }
 
 func (w *WebSocket) Close() error {
@@ -87,7 +90,19 @@ func (w *WebSocket) Start(changed <-chan struct{}) {
 		case <-w.closed:
 			return
 		case <-changed:
-			err := w.ws.WriteMessage(websocket.TextMessage, []byte("reload"))
+			content, err := os.ReadFile(w.file)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			rendered, err := w.renderer.Render(string(content))
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			err = w.ws.WriteMessage(websocket.TextMessage, []byte(rendered))
 			if err != nil {
 				log.Println(err)
 				return
