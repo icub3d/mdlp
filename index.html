@@ -46,10 +46,28 @@
 				</div>
 		</main>
 	</div>
+	<script src="/js/mermaid.min.js"></script>
 	<script>
+		// Initialize mermaid
+		mermaid.initialize({ securityLevel: 'loose', startOnLoad: false });
+		const render = () => {
+			document.querySelectorAll(".highlight-source-mermaid > pre").forEach((e) => {
+				e.classList.add("mermaid");
+				e.innerHTML = e.innerText;
+				e.parentNode.replaceWith(e);
+			});
+			mermaid.run({
+				querySelector: '.mermaid',
+			});
+		};
+		render();
+
+		// Setup our websocket.
 		var ws = new WebSocket("ws://{{.Addr}}/ws");
 		ws.onmessage = function (evt) {
 			document.getElementById("mdlp-content").innerHTML = evt.data;
+			render();
+			anchor();
 		};
 		ws.onclose = function () {
 			console.log("Connection is closed...");
@@ -58,14 +76,16 @@
 			}, 1000);
 		}
 
-		window.onload = function () {
+		// Scroll to anchor
+		const anchor = () => {
 			if (location.hash && !document.querySelector(':target')) {
 				var element = document.getElementById('user-content-' + location.hash.slice(1));
 				if (element) {
 					element.scrollIntoView();
 				}
 			}
-		}
+		};
+		window.onload = anchor;
 	</script>
 </body>
 

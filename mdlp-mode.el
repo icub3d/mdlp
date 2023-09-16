@@ -79,10 +79,10 @@
    "*mdlp*"
    "mdlp"
    "-github-token" mdlp-github-token
-   "-addr" "localhost:8000"
+   "-addr" "localhost:8099"
    buffer-file-name))
   (sleep-for mdlp-wait-time)
-  (mdlp--browser "http://localhost:8000"))
+  (mdlp--browser "http://localhost:8099"))
 
 (defun mdlp-stop-process ()
   "Start the mdlp server."

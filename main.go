@@ -17,8 +17,6 @@ var renderer string
 var githubHost string
 var githubToken string
 var command string
-var mermaid bool
-var mmdcPath string
 
 func init() {
 	flag.StringVar(&addr, "addr", "localhost:0", "address on which to listen")
@@ -26,8 +24,6 @@ func init() {
 	flag.StringVar(&githubHost, "github-host", "api.github.com", "github host to use")
 	flag.StringVar(&githubToken, "github-token", "", "github token to use, not required but will increase rate limits")
 	flag.StringVar(&command, "command", "markdown_py", "command to use for rendering")
-	flag.BoolVar(&mermaid, "mermaid", true, "enable mermaid rendering support")
-	flag.StringVar(&mmdcPath, "mmdc-path", "mmdc", "path to mmdc binary")
 
 	flag.Usage = func() {
 		fmt.Println("Usage: mdlp [options] <file>")
@@ -79,22 +75,11 @@ func main() {
 	}
 	defer r.Close()
 
-	// Setup our mermaid wrapper
-	if mermaid {
-		mermaid, err := NewMermaidRenderer(mmdcPath, r)
-		if err != nil {
-			fmt.Printf("creating mermaid renderer: %v\n", err)
-			return
-		}
-		http.Handle("/mermaid/", mermaid.Handler())
-		defer mermaid.Close()
-		r = mermaid
-	}
-
 	// Setup our websocket handler.
 	http.Handle("/ws", WebSocketHandler(file, r, fileChanged))
 
-	// Setup styles and octicons server.
+	// Setup our static file handlers.
+	http.Handle("/js/", JsHandler())
 	http.Handle("/styles/", StylesHandler())
 	http.Handle("/octicons/", OcticonsHandler())
 

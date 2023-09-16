@@ -35,7 +35,8 @@ type PageData struct {
 }
 
 func (p *Page) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	content, err := os.ReadFile(p.file)
+	file := p.file
+	content, err := os.ReadFile(file)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
